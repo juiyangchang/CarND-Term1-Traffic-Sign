@@ -17,6 +17,7 @@ The goals / steps of this project are the following:
 [image2]: ./figures/fig2_histogram_of_classes.png "Histograms of Labels."
 [image3]: ./figures/fig3_preprocess.png  "Example of Preprocessed Image."
 [image4]: ./figures/fig4_dataaugmentation.png "Examples of Transformed Data"
+[image_pca]: ./figures/alexnet_rgb_pca.png "AlexNet Fancy PCA"
 [image5]: ./examples/placeholder.png "Traffic Sign 2"
 [image6]: ./examples/placeholder.png "Traffic Sign 3"
 [image7]: ./examples/placeholder.png "Traffic Sign 4"
@@ -25,7 +26,7 @@ The goals / steps of this project are the following:
 ---
 ### Writeup / README
 
-*1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.*
+#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.*
 
 You're reading it! and here is a link to my [project code](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
 
@@ -61,13 +62,11 @@ Here we plot the histogram for all three sets of data.  It sesms that the traini
 
 During data preprocessing, we process the image by first converting the image from RGB to YUV, the equations I followed can be found on the [wiki](https://en.wikipedia.org/wiki/YUV#Conversion_to.2Ffrom_RGB):
 
-$ Y = 0.299 R + 0.587 G + 0.114 B $
+* Y = 0.299 R + 0.587 G + 0.114 B 
+* U = 0.492 B - Y 
+* V = 0.877 R - Y 
 
-$ U = 0.492 B - Y $
-
-$ V = 0.877 R - Y $
-
-(Note that I made an mistake here that the U channel actually approximately $0.492(B - Y)$, or, $-0.147R -0.288G + 0.436 B$.  Similar mistake was made with the V channel.  But I have been using this pipeline and can only leave the correct preprocessing into future work.) The Y channel, which is brightness channel, are then histogram equalized to enhance the contrast with `cv2.equalizeHist`.  In [Sermanet and LeCun (2011)](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf), they considered similar preprocessing pipeline where they would first convert image to YUV and then "The  Y  channel is  then preprocessed with  global and local contrast normalization" (quote from their paper), while U and V channels were left unchanged. Finaly we normalize each channel by `X = (X - 128) / 128.`, this will make each channel be within the range of [-1, 1].
+(Note that I made an mistake here that the U channel actually approximately 0.492(B - Y), or, -0.147R -0.288G + 0.436 B.  Similar mistake was made with the V channel.  But I have been using this pipeline and can only leave the correct preprocessing into future work.) The Y channel, which is brightness channel, are then histogram equalized to enhance the contrast with `cv2.equalizeHist`.  In [Sermanet and LeCun (2011)](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf), they considered similar preprocessing pipeline where they would first convert image to YUV and then "The  Y  channel is  then preprocessed with  global and local contrast normalization" (quote from their paper), while U and V channels were left unchanged. Finaly we normalize each channel by `X = (X - 128) / 128.`, this will make each channel be within the range of [-1, 1].
 
 Below I show an example of the preprocessed image.
 ![Example of preprocessed image.][image3]
@@ -112,13 +111,14 @@ Another transformation we will consider is to purturb the RGB channels by adding
 
 To begin with we compute the covariance matrix of the RGB channels. Next we compute the priciple compontents `lam` and their feature directions P with eigendecompostion.  Following the AlexNet paper, during training we add noise to each of RGB channels according to
 
-$[p_1, p_2, p_3] [\lambda_1 \alpha_1, \lambda_2 \alpha_2, \lambda_3 \alpha_3]^\top $
+![][image_pca]
 
-where $ p_i$ is the eigenvector of the covariance matrix (or ``P[:,[i]]``), and $\lambda_i$ is the square root of the eigenvalues (`lam[i]`) while $\alpha_i$'s are a gaussain random variable drawn for each image. Unlike AlexNet, we use
-the $\lambda_i$ as square root of the eigenvalues as this would ensure the added noise would have the same covariance matrix as the image when $\alpha_i$'s are standard normal.
+where p_i is the eigenvector of the covariance matrix and lambda_i is the square root of the eigenvalues  while alpha_i's are a gaussain random variable drawn for each image. Unlike AlexNet, we use
+the lambda_i as square root of the eigenvalues as this would ensure the added noise would have the same covariance matrix as the image when alpha_i's are standard normal.
 
-In AlexNet paper, $\alpha_i$'s are of standard deviation 0.1, here I use standard deviation of 0.05, which, as shown in the following plot, in the extreme would change the pixel value by $\pm 10$.
+In AlexNet paper, alpha_i's are of standard deviation 0.1, here I use standard deviation of 0.05, which, as shown in the following plot, in the extreme would change the pixel value by +- 10.
 
 Below we show an example how the transformation would be like. During running time,
 shifting, rotatiting, shearing and PCA color shifting will all be applied to the image.
+
 ![Examples of transformed data.][image4]
