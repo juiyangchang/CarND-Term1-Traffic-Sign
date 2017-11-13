@@ -141,7 +141,21 @@ traing prcedure.
 
 #### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
+I tried three different network structures: GooLeNet-like, VGG16-like, LeNet5-like.  None of these are the actual network strcture proposed. 
 
+***GoogLeNet-Like***
+
+The GoogLeNet-Like looks like this the table below.
+It has some similarity with the structure in the [CVPR 2015 GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf), but is by no means as powerful as the GoogLeNet.
+I didn't train a deeper network as I did the training on my laptop.
+
+The convolutional layer includes convolution, batch normalization and relu activation.  Batch normalization
+is known to make the joint distribution of preactivation
+of different neurons less eclipical, thus helping the progress of gradient descent. Batch normalization is also applied to the fully connected layer. If not specified, I always use `'SAME'` padding in convolutional and pooling layers.
+
+The inception module has four paths: 1x1, 3x3, 5x5 and max pooling.  In the table, # 1x1 indicates the depth of the 1x1 convolution path.  # 3x3 reduce and # 5x5 reduce are the depth of the 1x1 convolution layers applied prior to the 3x3 and 5x5 convolutionaly layers.
+The max pooling path applies 3x3 max pooling with stride 1, followed by a 1x1 convolutional layer (which is called pool proj) in the table.  The output depth
+of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 
 | Layer    | patch size/stride | Output | # 1x1|  # 3x3 reduce | # 3x3 | # 5x5 reduce | # 5x5 | # pool proj| 
 |:-------------:|:-------------:|:-----:|:----:|:----:|:----:|:----:|:----:|:----:|
@@ -154,12 +168,34 @@ traing prcedure.
 | max pooling    | 3x3/2 | 8x8x256|   |  |  |   |   |  |
 | inception module |      | 8x8x512| 128 | 64| 256 | 24  | 64   | 64  |
 | inception module |      | 8x8x512| 128 | 64| 256 | 24  | 64   | 64  |
-| avg pooling  | 8x8/1  |  1x1x512|   |  |  |   |   |  |
+| avg pooling*  | 8x8/1  |  1x1x512|   |  |  |   |   |  |
 | flatten  |      |   512   |   |  |  |   |   |    |
 | dropout (50 %) |   | 512  |   |  |  |   |   |    |
 | fully connected linear |        | 43  |   |  |  |   |   |    |
 | softmax  |   |43   |  |  |   |   |    |
+\* Valid Padding
+
+***VGG-16-Like***
 
 
+|  Layer  |  patch size/stride | Output |
+|:-------:|:-------:|:-------:|
+| Input     |     | 32x32x3   |
+| convolution| 3x3/1 | 32x32x64|
+| convolution| 3x3/1 | 32x32x64|
+| max pooling| 2x2/2 | 16x16x64|
+| convolution| 3x3/1 | 16x16x128|
+| convolution| 3x3/1 | 16x16x128|
+| max pooling| 2x2/2 | 8x8x128|
+| convolution| 3x3/1 | 8x8x256|
+| convolution| 3x3/1 | 8x8x256|
+| convolution| 3x3/1 | 8x8x256|
+| max pooling| 2x2/2 | 2x2x256|
+| flatten |     |  1024|
+| fully connected relu | | 512|
+|dropout (50%) |  | 512|
+| fully connected relu | | 512|
+|dropout (50%) |  | 512|
+| fully connected linear| | 43|
+| softmax  |   |43   |
 
- 
