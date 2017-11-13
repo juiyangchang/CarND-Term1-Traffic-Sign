@@ -340,7 +340,7 @@ these two images doesn't resemble those the network saw during training (differi
 
 ![][image8]
 
-The *GoogLeNet-like* structure on the other hand classifies 80% of the images correctly. This is still lower than the test set accuracy but after all we only have five images here.  It made mistake on class 30 (Beware of ice/snow).  It is not clear from the bar chart below if the precision/recall rate of the classes contributed to the error, though.  Consider adding local jittering noises instead of global RGB noise in image augmentation during training might be helpful.
+The *GoogLeNet-like* structure on the other hand classifies 80% of the images correctly. This is still lower than the test set accuracy but after all we only have five images here.  It made a mistake on class 30 (Beware of ice/snow).  It is not clear from the bar chart below if the precision/recall rate of the classes contributed to the error, though.  Consider adding local jittering noises instead of global RGB noise in image augmentation during training might be helpful.
 
 ![][image9]
 
