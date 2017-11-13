@@ -26,6 +26,9 @@ The goals / steps of this project are the following:
 [image10]: ./figures/fig10_vgg16_feature_map.png "VGG-16-Like's Feature Maps"
 [image11]: ./figures/fig11_googlenet_feature_map.png "GoogLeNet-Like's Feature Maps"
 
+## Rubric Points
+### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
+
 ---
 ### Writeup / README
 
@@ -48,16 +51,13 @@ I use `numpy.ndarray.shape` and `len(set(y_train))` (for counting the number of 
 
 #### 2. Include an exploratory visualization of the dataset.
 
-In the following we show 2 examples for each of the 43 sign classes in 86 panels. As can be seen from the figure below, the images of the same class can contain signs of differeing size, shape, bightness, contrast and even sharpness. 
+In the following we show 2 examples for each of the 43 sign classes in 86 panels. As can be seen from the figure below, the images of the same class can contain signs of differing size, shape, brightness, contrast and even sharpness. 
 
 ![Examples of Traffic Signs][image1]
 
 #### 3. Histograms of the Labels.
 
-Here we plot the histogram for all three sets of data.
-From the top to the bottom panel, we show
-histograms of class labels in the training set, the validation set and the test set, respectively.
-It sesms that the training set's distribution more closely resembles that of the test set. For instance, the validation set has equal number of cases in clases 20 to 23 while the training and test sets share similar amount in those classes. Overall, the distributions of the three sets of data are fairly similar.
+Here we plot the histogram for all three sets of data. From the top to the bottom panel, we show histograms of class labels in the training set, the validation set and the test set, respectively. It seems that the training set's distribution more closely resembles that of the test set. For instance, the validation set has equal number of cases in classes 20 to 23 while the training and test sets share similar amount in those classes. Overall, the distributions of the three sets of data are fairly similar.
 
 ![Histograms of the Labels. Top panel: histogram of class labels in the training set. Middle panel: histogram of class labels in the validation set. Bottom panel: histogram of class labels in the test set.][image2]
 
@@ -73,7 +73,9 @@ During data preprocessing, we process the image by first converting the image fr
 * U = 0.492 B - Y 
 * V = 0.877 R - Y 
 
-(Note that I made a mistake here that the U channel actually approximately 0.492(B - Y), or, -0.147R -0.288G + 0.436 B.  Similar mistake was made with the V channel.  But I have been using this pipeline and can only leave the correct preprocessing into future work.) The Y channel, which is the brightness channel, is then histogram equalized to enhance the contrast with `cv2.equalizeHist`.  In [Sermanet and LeCun (2011)](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf), they considered similar preprocessing pipeline where they would first convert image to YUV and then "The  Y  channel is  then preprocessed with  global and local contrast normalization" (quote from their paper), while U and V channels were left unchanged. Finaly we normalize each channel by `X = (X - 128) / 128.`, this will make each channel be within the range of [-1, 1].
+(Note that I made a mistake here that the U channel is actually approximately 0.492(B - Y), or, -0.147R -0.288G + 0.436 B.  Similar mistake was made with the V channel.  But I have been using this pipeline and can only leave the correct preprocessing into future work.) The Y channel, which is the brightness channel, is then histogram equalized to enhance the contrast with `cv2.equalizeHist`.  
+This three channels are concatenated into `X`.
+In [Sermanet and LeCun (2011)](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf), they considered similar preprocessing pipeline where they would first convert image to YUV and then "The  Y  channel is  then preprocessed with  global and local contrast normalization" (quote from their paper), while U and V channels were left unchanged. Finally we normalize each channel by `X = (X - 128) / 128.`, this will make each channel be within the range of [-1, 1].
 The final data dimension for each image is `(32, 32, 3)`.
 
 Below I show an example of the preprocessed image.
@@ -83,7 +85,7 @@ Another preprocessing step we do is to one-hot encode the y labels.
 
 ##### Data Augmentation
 
-While our training set data is of moderate size, chances are that we can still be short of data when we try going deep. As can be seen from previous plots, real world images can be taken from different standing points, viewing angles and during a different day time or weather. In the following, I desribe how I use the `ImageDataGenerator` API provided by [keras](https://keras.io/preprocessing/image/) to perform random linear transformations (shifting, rotating, and shearing) to the training images.  In addtion, I also follow the PCA proecdure described in the [AlexNet paper](https://www.cs.toronto.edu/~kriz/imagenet_classification_with_deep_convolutional.pdf) to purturb image intensities in RGB channel.
+While our training set data is of moderate size, chances are that we can still be short of data when we try going deep. As can be seen from the plot of examples of the training cases, real world images can be taken from different standing points, viewing angles and during a different day time or weather. In the following, I describe how I use the `ImageDataGenerator` API provided by [keras](https://keras.io/preprocessing/image/) to perform random linear transformations (shifting, rotating, and shearing) to the training images.  In addition, I also follow the PCA procedure described in the [AlexNet paper](https://www.cs.toronto.edu/~kriz/imagenet_classification_with_deep_convolutional.pdf) to perturb image intensities in RGB channel.
 
 ##### *Linear Transformation with keras.preprocessing.image.ImageDataGenerator*
 
@@ -94,15 +96,15 @@ from keras.preprocessing.image import ImageDataGenerator
 To begin with I create an `ImageDataGenerator` object `datagen` with the following transformation types and ranges: rotate by [-15, 15] degrees, vertically and horizontally shift by [-2, 2] pixels, and shear by [-10, 10] degrees.
 
 The first two types of transformations were used in the traffic sign recognition paper ([Sermanet and LeCun, 2011](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf)).  They also did image scaling in the paper but
-```ImageDataGenerator``` would scale (by setting ```zoom_range``` to a number or a list) along height and width with two different scaling ratios, thus unnaturally deform the sign shape.  Image scaling can be done manually with a transformation matrix or with opencv3 library but I didn't consider going in that direction.  The transforamtion
+```ImageDataGenerator``` would scale (by setting ```zoom_range``` to a number or a list) along height and width with two different scaling ratios, thus unnaturally deform the sign shape.  Image scaling can be done manually with a transformation matrix or with opencv3 library but I didn't consider going in that direction.  The transformation
 ranges are hyperparameters potentially worth tuning.
 
-Sometimes datagen would be fitted to training set (`datagen.fit(X_train)`) prior to applying the trasnformations but since our transformations don't depend on the population statistics of the training data we don't need to do it here. 
+Sometimes `datagen` would be fitted to training set (`datagen.fit(X_train)`) prior to applying the transformations but since our transformations don't depend on the population statistics of the training data we don't need to do it here. 
 
-During trainging we can run something like the following to train over training data with
-an augmentation factor of 10.
+During training we can run something like the following to train over training data with
+an augmentation factor of 10 (10 times the training set size per epoch)
 ```python
-counter, batches = 0, math.ceil(10 * X_trian.shape[0] / 64)   # augment the data by a factor of 10
+counter, batches = 0, math.ceil(10 * X_train.shape[0] / 64)   # augment the data by a factor of 10
 for X_batch, y_batch in datagen.flow(X_train, y_train, batch_size=64):
     # do the training
     ...
@@ -111,53 +113,55 @@ for X_batch, y_batch in datagen.flow(X_train, y_train, batch_size=64):
         break
     
 ```
-``datagen.flow()``` is a generator that will run indefinitely, which is why we have to stop the loop by checking number of batches trained over. In addtion to the transformations, by default it will also random shuffle the data.
+``datagen.flow()``` is a generator that will run indefinitely, which is why we have to stop the loop by checking number of batches trained over. In addition to the transformations, by default it will also random shuffle the data.
 
-##### ***Color-channel Purturbation with PCA***
+##### ***Color-channel Perturbation with PCA***
 
 Another transformation we consider is to purturb the RGB channels by adding noises. We follow the procedure mentioned in the [AlexNet paper](https://www.cs.toronto.edu/~kriz/imagenet_classification_with_deep_convolutional.pdf).
 
-To begin with we compute the covariance matrix of the RGB channels. Next we compute the principal compontents `lam` and their feature directions `P` with eigendecompostion.  Following the AlexNet paper, during training we add noise to each of RGB channels according to
+To begin with we compute the covariance matrix of the RGB channels. Next we compute the principal components `lam` and their feature directions `P` with eigendecomposition.  Following the AlexNet paper, during training we add noise to each of RGB channels according to
 
 ![][image_pca]
 
-where p_i (or, `P[:,[i]]`) is the eigenvector of the covariance matrix and lambda_i (or, `lam[i]`) is the square root of the eigenvalues. alpha_i's are gaussain random variables drawn independelty for each image. Unlike AlexNet, we use
+where p_i (or, `P[:,[i]]`) is the eigenvector of the covariance matrix and lambda_i (or, `lam[i]`) is the square root of the eigenvalues. alpha_i's are gaussain random variables drawn independtly for each image. Unlike the AlexNet paper, we use
 the lambda_i as square root of the eigenvalues as this would ensure the added noise would have the same covariance matrix as the image when alpha_i's are standard normal.
 
-In AlexNet paper, alpha_i's are of standard deviation 0.1, here I use standard deviation of 0.05, which, as shown in the following plot, in the extreme would change the pixel value by +- 10 (recall that the pixel values range from 0 to 255.)
+In the AlexNet paper, alpha_i's are of standard deviation 0.1, here I use standard deviation of 0.05, which, as shown in the following plot, in the extreme would change the pixel value by +- 10 (recall that the pixel values range from 0 to 255.)
 
 ![][image4]
 
 ##### *Putting transformations altogether to perform data augmentation*
 
-Below we show an example how the transformation would be like. During running time,
-shifting, rotatiting, shearing and RGB color shifting will all be applied to the image. In panel (a), we show an image in the traning set, in panels (b)-(k), ten
-examples of the transformed images are shown.  As can be seen the figure, the image shape can be tilted, rotated, and slightly moved.  The purturbed RGB noise
+Below we show an example of how the transformation would be like. During running time,
+shifting, rotating, shearing and RGB color shifting will all be applied to the image. In panel (a), we show an image in the training set, in panels (b)-(k), ten
+examples of the transformed images are shown.  As can be seen in the figure, the image shape can be tilted, rotated, and slightly moved.  The perturbed RGB noise
 is not significant, though.
 
 ![Examples of transformed data.][image5]
 
-During traning, data augmentation procedure is first
+During training, data augmentation procedure is first
 adopted to generate transformed images, then these images are further preprocessed (to YUV coding with Y
 histogram equalized).  Then the data is feed into
-traing prcedure.
+training procedure.
 
 #### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-I tried three different network structures: GooLeNet-like, VGG16-like, LeNet5-like.  None of these are the actual network strcture proposed. 
+I tried three different network structures: GooLeNet-like, VGG016-like, LeNet5-like.  None of these are the actual network structure proposed in the literature, instead they draw ideas from the literature. I would say both GooLeNet-like and VGG-16-Like networks are both my final models.
+
+In the following I describe each of the three network structures.
 
 ***GoogLeNet-Like***
 
-The GoogLeNet-Like looks like the table listed below.
-It has some similarity with the structure in the [CVPR 2015 GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf), but is by no means as powerful as the GoogLeNet.
+The GoogLeNet-Like network looks like the table listed below.
+It has some similarity with the structure in the [CVPR2015 GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf), but is by no means as powerful as the GoogLeNet.
 I didn't train a deeper network as I did the training on my laptop.
 
 The convolution layer includes convolution, batch normalization and relu activation.  Batch normalization
-is known to make the joint distribution of preactivation
+is known to make the joint distribution of pre-activation
 of different neurons less elliptical, thus helping the progress of gradient descent.  If not specified, I always use `'SAME'` padding in convolutional and pooling layers.
 
-Batch normalization is also applied to the fully connected layer. A typcical fully connected layer includes
-matrix multiplication, batch normalization and neuronal activation. I would specify the type of activation function used in the table entry for the fully connected layer. Here the only fully connected layer has linear activation, its activation is further fed into softmax function for making predicitions.
+Batch normalization is also applied to the fully connected layer. A typiccal fully connected layer includes
+matrix multiplication, batch normalization and neuronal activation. I would specify the type of activation function used in the table entry for the fully connected layer. Here the only fully connected layer has linear activation, its activation is further fed into softmax function for making prediction of class probabilities.
 
 The inception module has four paths: 1x1, 3x3, 5x5 and max pooling.  In the table, # 1x1 indicates the depth of the 1x1 convolution path.  # 3x3 reduce and # 5x5 reduce are the depths of the 1x1 convolution layers applied prior to the 3x3 and 5x5 convolution layers.
 The max pooling path applies 3x3 max pooling with stride 1, followed by a 1x1 convolutional layer (which is called pool proj) in the table.  The output depth
@@ -179,6 +183,7 @@ of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 | dropout (50 %) |   | 512  |   |  |  |   |   |    |
 | fully connected linear |        | 43  |   |  |  |   |   |    |
 | softmax  |   |43   |  |  |   |   |    |
+
 \* Valid Padding
 
 ***VGG-16-Like***
