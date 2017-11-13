@@ -23,8 +23,7 @@ The goals / steps of this project are the following:
 [image7]: ./figures/fig7_test_images.png "Images from the Web"
 [image8]: ./figures/fig8_vgg_precision_recall.png "Precision and Recall Bar Chart of VGG-16-Like"
 [image10]: ./figures/fig10_vgg16_feature_map.png "VGG-16-Like's Feature Maps"
-
-
+[image11]: ./figures/fig11_googlenet_feature_map.png "GoogLeNet-Like's Feature Maps"
 ---
 ### Writeup / README
 
