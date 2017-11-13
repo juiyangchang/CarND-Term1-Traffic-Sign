@@ -188,7 +188,7 @@ of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 
 ***VGG-16-Like***
 
-Another network structure I tried is the VGG-16-like network.  As can be seen from the table below, it's strucutre kind of resembles that of [VGG team's 16 layer network in 2014](https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md). But it only contains 10 weighted layers.
+Another network structure I tried is the VGG-16-like network.  As can be seen from the table below, it's structure kind of resembles that of [VGG team's 16 layer network in 2014](https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md). But it only contains 10 weighted layers.
 
 
 |  Layer  |  patch size/stride | Output |
@@ -215,7 +215,7 @@ Another network structure I tried is the VGG-16-like network.  As can be seen fr
 ***LeNet5-Like***
 
 The last network I tried is LeNet5-Like. It differs
-from the original LeNet5 in that it uses `'SAME'` padding instead of `'VALID'` padding. In addtion it
+from the original LeNet5 in that it uses `'SAME'` padding instead of `'VALID'` padding. In addition it
 also uses batch normalization and dropout.
 
 
@@ -244,17 +244,17 @@ by a factor of three, meaning that in an epoch, for each training image, the ori
 So in each epoch, we training over 104,397 images.
 
 I used ADAM Optimizer for all three networks with learning rate of 0.003.  ADAM optimizer is known to 
-be more roboust as it will automatically tune the learning rate with momentum.
+be more robust as it will automatically tune the learning rate with momentum.
 
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
-Below we plot the training and validation set performance during training.  The plots of the GoogLeNet-like netowk is stretched in x axis as
-it effectively sees more data in an epoch.  It is quite apparently the LeNet5-like is suffering overfitting. The rest two is kind of similar performance-wise.
+The figure below depicts the training and validation set performance during training.  The plots of the GoogLeNet-like network is stretched in x axis as
+it effectively sees three times the data points in an epoch.  It is quite apparently the LeNet5-like is suffering overfitting. The rest two is kind of similar performance-wise.
 
 
 ![][image6]
 
-Below we report the final loss and accuracy over the training and validation sets.  Apparently the LeNet5-like network suffer from larger scale of overfitting.  It is not clear if the rest two network structure suffer from overfitting but it seems also applies for the two as well.  But VGG-16 seem to be a better network from the validation accuracy standing point.
+Below we report the final loss and accuracy over the training and validation sets.  Apparently the LeNet5-like network suffer from larger scale of overfitting.  It is not clear if the rest two network structures suffer from overfitting but it seems also applies for the two as well.  But VGG-16-Like seems to be a better network in terms of the validation accuracy.
 
 
 |      | Training Loss        | Validation Loss |         Training Accuracy         |  Validation Accuracy       |
@@ -275,20 +275,29 @@ My final model results were:
 * training set accuracy of  1
 * validation set accuracy of 0.9966
 * test set accuracy of 0.9908
-
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
-
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
  
- My approach for choosing network structure 
+ My approach for choosing network structure was kind of iterative and
+ partially using well known architectures. I initially use LeNet5-like network.
+ With batch normalization and dropout, LeNet5-like network already achieves
+ the project goal. 
+ 
+ Batch normalization is adopted as it is known to accelerate the training and increase accuracy.  Batch normalization is used in preactivation of convolution and fully connected layers.  Dropout is applied to as a form of regularization. Dropout is only added after the activation of a fully connected layer (except for the classification layer).  It seems to be a common practice to not use dropout after convolution layer.  For one thing,
+ the convolution layer is already sparse as each neuron only connect to a small
+ patch from the previous layer.  Each neuron here is a particular pixel in a layer of feature.  I did try using dropout after convolution layer briefly but
+ it seems that the training accuracy would fluctuate a lot and the improvement is insignificant.  Dropout rate is set to 0.5 and I did not consider tuning it.
+
+My other design choice was to use `SAME` padding instead of `VALID` padding in LeNet5-like network. I don't know if it has encouraged a better performance, but it seems that `SAME` padding is used in modern networks more. Moreover, I found it easier for keep tracking of the output sizes.
+
+ I moved on to adding more convolution layers before each pooling layer, as it seems to be more common to use multiple convolution layers in modern designs, according to the [CS231n course notes](http://cs231n.stanford.edu/).  During the trials, I also noticed that adding more layers to the initial convolution layers is helpful (and also increase the depth of later layers as later layers typically increase depths from the former layers).  I also noticed that the changing kernel size from 5 to 3 seems won't degrade the performance.  Furthermore, kernel size of 5 is considerably slower than 3 in deeper structures.  I ended up just using a part of [the VGG team's 16-layer network](https://arxiv.org/pdf/1409.1556).
+ Interestingly, the VGG-16-like network suppresses the overfitting issue from
+ the LeNet5-like structure greatly.
+ I also tried replacing part of the convolution layers in the VGG-16-like networks to inception modules, which I called the GoogLeNet-like.  The dimension of the layers take ideas from the [GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf).  The main difference from them is that I used batch normalization in each of the weighted layers (convolution and fully connected).
+
+ As a parting word, convolution neural network should be suitable to traffic sign problem as the signs can be appearing in different locations in the images, and taken with differing viewing points and distances. Convolution
+ layers are shift invariant so it should be able to learn useful common features
+ occurring at differing locations in two or more images.  The reasoning behind using VGG 16-layer or the inception modules is more of a random decision.  But 
+ I think it always worth trying competition winning network structures. My final networks -- the VGG-16-like and the GoogLeNet-like networks are both quite good performance-wise.  It would be interesting to see if the error rate
+ over the validation sets can be further decreased.
 
 ### Test a Model on New Images
 
@@ -297,7 +306,8 @@ If a well known architecture was chosen:
 Here are five German traffic signs that I found on the web:
  ![][image7]
 
- The first image might be difficult to classify because ...
+ The first image might be difficult to classify because it is being viewed from a bottom angle and slightly smaller than the whole image.  The second image is
+ also kind of difficult as it shares the same problem of being smaller than the image. Finally the fifth image can potentially be difficult as it is kind of blurred by surrounding noises (snow, it is, as the name of the sign suggests).
 
 #### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
@@ -311,24 +321,37 @@ Here are the results of the prediction:
 | Children crossing	      		| Children crossing					 				| Children crossing					 				|
 | Beware of ice/snow			| Beware of ice/snow  | Speed limit (100km/h) |
 
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
+Here we show the accuracy rates for the two networks over the test images from the web:
 
 |      |  Accuracy  |
 |:-----|:-----------|
 | VGG-16-Like | 0.6 |
 | GoogLeNet-Like | 0.8|
 
+
+The *VGG-16-like* model was able to correctly guess 3 of the 5 traffic signs, which gives an accuracy of 60%.  This is comparatively worse than the test set performance.  
+
+It is kind of difficult to reason why it would decide the first image as yield. For one thing, yield is a triangular sign while the sign in the image is circular. Maybe it was because the bottom rectangular shape in the image.  The precision and recall rates of classes 16 (Vehicles over 3.5 metric tons prohibited ) and 13 (Yield) aren't particularly low or high as in the bar chart below.  The VGG-16-like model also failed to classify the second image correctly, this time mistaken a sign of triangular shape with a sign of circular shape (Speed Limit).  Again the precision and recall charts aren't useful in reasoning this mistake.  For both cases I would think it is because
+these two images doesn't resemble those the network saw during training (differing viewing angle and size).
+
+
+
 ![][image8]
 
+The *GoogLeNet-like* structure on the other hand classifies 80% of the images correctly. This is still lower than the test set accuracy but after all we only have five images here.  It made mistake on class 30 (Beware of ice/snow).  It is not clear from the bar chart below if the precision/recall rate of the classes contributed to the error, though.  Consider adding local jittering noises instead of global RGB noise in image augmentation during training might be helpful.
 
 ![][image9]
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
+Below I describe the prediction probabilities of the five new images for both networks.
 
 ***VGG-16-Like***
 
-Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
+In test case 1,  the actual label is class 16 (Vehicles over 3.5 metric tons prohibited).  The top five probabilities can be seen below.  The actual class 
+is not even in top five but the network seems to be not really certain about
+the label for this image anyways as the prediction probability are all kind of small.  Note that the second to fifth labels are all of circular shape, same 
+as the actual label.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -338,7 +361,8 @@ Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
 |0.048|2 (Speed limit (50km/h))|
 |0.042|9 (No passing)|
 
-Test Case 2, Actual Label: 22 (Bumpy road)
+For test case 2, the actual label is class 22 (Bumpy road).  The top five probabilities are listed in the table below.  The actual class is not in top five again and this time  it is a hard mistake as it is quite certain the image
+is label 0.  Three out of five of the images are circular shape, maybe it was due to the bottom snow-like pile in the image being of circular shape.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -348,7 +372,7 @@ Test Case 2, Actual Label: 22 (Bumpy road)
 |0.013|38 (Keep right)|
 |0.013|13 (Yield)|
 
-Test Case 3, Actual Label: 12 (Priority road)
+Test Case 3, Actual Label: 12 (Priority road): this one iss less interesting as the network iss correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -358,7 +382,7 @@ Test Case 3, Actual Label: 12 (Priority road)
 |0.014|38 (Keep right)|
 |0.014|13 (Yield)|
 
-Test Case 4, Actual Label: 28 (Children crossing)
+Test Case 4, Actual Label: 28 (Children crossing): this one iss less interesting as the network iss correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -368,7 +392,8 @@ Test Case 4, Actual Label: 28 (Children crossing)
 |0.001|38 (Keep right)|
 |0.001|12 (Priority road)|
 
-Test Case 5, Actual Label: 30 (Beware of ice/snow)
+Test Case 5, Actual Label: 30 (Beware of ice/snow): Despite making the right
+judgment, the network is comparatively less certain about this image. Maybe it is due to the fact that of class 30 having a lower recall rate for VGG-16-like network.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -380,7 +405,7 @@ Test Case 5, Actual Label: 30 (Beware of ice/snow)
 
 ***GoogLeNet-Like***
 
-Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
+Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited): Unlike the VGG-16-like network, the GoogLeNet-like is quite certain about this one -- and it is right.  
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -390,7 +415,7 @@ Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
 |0.006|13 (Yield)|
 |0.005|1 (Speed limit (30km/h))|
 
-Test Case 2, Actual Label: 22 (Bumpy road)
+Test Case 2, Actual Label: 22 (Bumpy road): Unlike the VGG-16-like network, the GoogLeNet-like is quite certain about this one -- and it is right. It is probably worth investigating if it was due to image augmentation or inception module.  Recall that the VGG-16-like network wasn't trained with image augmentation. But I would guess it is more due to data augmentation as I did apply shifting and shearing in data augmentation process.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -400,7 +425,7 @@ Test Case 2, Actual Label: 22 (Bumpy road)
 |0.000|10 (No passing for vehicles over 3.5 metric tons)|
 |0.000|4 (Speed limit (70km/h))|
 
-Test Case 3, Actual Label: 12 (Priority road)
+Test Case 3, Actual Label: 12 (Priority road): this one iss less interesting as the network iss correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -410,7 +435,7 @@ Test Case 3, Actual Label: 12 (Priority road)
 |0.017|1 (Speed limit (30km/h))|
 |0.016|10 (No passing for vehicles over 3.5 metric tons)|
 
-Test Case 4, Actual Label: 28 (Children crossing)
+Test Case 4, Actual Label: 28 (Children crossing): this one iss less interesting as the network iss correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -420,7 +445,7 @@ Test Case 4, Actual Label: 28 (Children crossing)
 |0.003|13 (Yield)|
 |0.002|10 (No passing for vehicles over 3.5 metric tons)|
 
-Test Case 5, Actual Label: 30 (Beware of ice/snow)
+Test Case 5, Actual Label: 30 (Beware of ice/snow): The network kind of have no idea what this is.  I don't know if it was because of the jittering noise in the image being unfamilar to the network.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -433,6 +458,14 @@ Test Case 5, Actual Label: 30 (Beware of ice/snow)
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 #### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
 
+Below I show the feature map of the first pooling layers in the VGG-16-like and
+GoogLeNet-like networks when applied with the first test image from the web.
+Both networks conclude that circular shapes is probably important for classifying this image.  One thing worth noticing is that, the GoogLeNet feature maps, despite being more blurred, is less likely to react to a local area in the background. On the other hand, there are multiple feature maps
+in the VGG-16-like network being reactive to the top left corner.  I think this
+provides a proof of the image augmentation being helpful in fitting to local noises.
+
+***VGG-16-like***
 ![][image10]
 
+***GoogLeNet-like***
 ![][image11]
