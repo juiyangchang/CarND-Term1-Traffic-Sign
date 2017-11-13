@@ -146,7 +146,7 @@ training procedure.
 
 #### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-I tried three different network structures: GooLeNet-like, VGG016-like, LeNet5-like.  None of these are the actual network structure proposed in the literature, instead they draw ideas from the literature. I would say both GooLeNet-like and VGG-16-Like networks are both my final models.
+I tried three different network structures: GooLeNet-like, VGG-16-like, LeNet5-like.  None of these are the actual network structure proposed in the literature, instead they draw ideas from the literature. I would say both GooLeNet-like and VGG-16-Like networks are both my final models.
 
 In the following I describe each of the three network structures.
 
