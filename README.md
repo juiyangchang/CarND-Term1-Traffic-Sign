@@ -19,7 +19,7 @@ The goals / steps of this project are the following:
 [image_pca]: ./figures/alexnet_rgb_pca.png "AlexNet Fancy PCA"
 [image4]: ./figures/fig4_rgb_noise.png "Distribution of RGB Noise"
 [image5]: ./figures/fig5_data_aug.png "Examples of Transformed Images"
-[image6]: ./examples/placeholder.png "Traffic Sign 3"
+[image6]: ./figures/fig6_acc_loss_plot.png "Plot of Loss and Accuracy during Training"
 [image7]: ./examples/placeholder.png "Traffic Sign 4"
 [image8]: ./examples/placeholder.png "Traffic Sign 5"
 
@@ -145,15 +145,18 @@ I tried three different network structures: GooLeNet-like, VGG16-like, LeNet5-li
 
 ***GoogLeNet-Like***
 
-The GoogLeNet-Like looks like this the table below.
+The GoogLeNet-Like looks like the table listed below.
 It has some similarity with the structure in the [CVPR 2015 GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf), but is by no means as powerful as the GoogLeNet.
 I didn't train a deeper network as I did the training on my laptop.
 
-The convolutional layer includes convolution, batch normalization and relu activation.  Batch normalization
+The convolution layer includes convolution, batch normalization and relu activation.  Batch normalization
 is known to make the joint distribution of preactivation
-of different neurons less eclipical, thus helping the progress of gradient descent. Batch normalization is also applied to the fully connected layer. If not specified, I always use `'SAME'` padding in convolutional and pooling layers.
+of different neurons less eclipical, thus helping the progress of gradient descent.  If not specified, I always use `'SAME'` padding in convolutional and pooling layers.
 
-The inception module has four paths: 1x1, 3x3, 5x5 and max pooling.  In the table, # 1x1 indicates the depth of the 1x1 convolution path.  # 3x3 reduce and # 5x5 reduce are the depth of the 1x1 convolution layers applied prior to the 3x3 and 5x5 convolutionaly layers.
+Batch normalization is also applied to the fully connected layer. A typcical fully connected layer includes
+matrix multiplication, batch normalization and neuronal activation. I would specify the type of activation function used in the table entry for the fully connected layer. Here the only fully connected layer has linear activation, its activation is further fed into softmax function for making predicitions.
+
+The inception module has four paths: 1x1, 3x3, 5x5 and max pooling.  In the table, # 1x1 indicates the depth of the 1x1 convolution path.  # 3x3 reduce and # 5x5 reduce are the depths of the 1x1 convolution layers applied prior to the 3x3 and 5x5 convolution layers.
 The max pooling path applies 3x3 max pooling with stride 1, followed by a 1x1 convolutional layer (which is called pool proj) in the table.  The output depth
 of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 
@@ -177,6 +180,8 @@ of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 
 ***VGG-16-Like***
 
+Another network structure I tried is the VGG-16-like network.  As can be seen from the table below, it's strucutre kind of resembles that of [VGG team's 16 layer network in 2014](https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md). But it only contains 13 layers.
+
 
 |  Layer  |  patch size/stride | Output |
 |:-------:|:-------:|:-------:|
@@ -199,3 +204,56 @@ of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 | fully connected linear| | 43|
 | softmax  |   |43   |
 
+***LeNet5-Like***
+
+The last network I tried is LeNet5-Like. It differs
+from the original LeNet5 in that it uses `'SAME'` padding instead of `'VALID'` padding. In addtion it
+also uses batch normalization and dropout.
+
+
+|  Layer  |  patch size/stride | Output |
+|:-------:|:-------:|:-------:|
+| Input     |     | 32x32x3   |
+| convolution| 5x5/1 | 32x32x6|
+| max pooling| 2x2/2 | 16x16x6|
+| convolution| 5x5/1 | 16x16x16|
+| max pooling| 2x2/2 | 8x8x16|
+| flatten |     | 256|
+| fully connected relu | | 120|
+|dropout (50%) |  |120|
+| fully connected relu | | 84|
+|dropout (50%) |  |84|
+| fully connected linear| | 43|
+| softmax  |   |43   |
+
+
+**Training**
+
+I trained the VGG-16-like and LeNet5-like networks for 50 epochs of non-augmented data. Each epoch is a full run over all data points in the training set. I always use batch size of 64. I tried briefly with batch sizes of 32 but the loss fluctuates a lot.  In reflection, 32 can be too small for the batch size as we won't see all classes in a batch. I never tried larger batch sizes.
+
+For the GoogLeNet-Like structure, I trained over 40 epochs of augmented data.  I augmented the training data
+by a factor of three, meaning that in an epoch, for each training image, the original image and two transformed images of the image are used in training.
+So in each epoch, we training over 104,397 images.
+
+Below we plot the training and validation set performance during training.  The plots of the GoogLeNet-like netowk is stretched in x axis as
+it effectively sees more data in an epoch.  It is quite apparently the LeNet5-like is suffering overfitting. The rest two is kind of similar performance-wise.
+
+
+![][image6]
+
+Below we report the final loss and accuracy over the training and validation sets.  Apparently the LeNet5-like network suffer from larger scale of overfitting.  It is not clear if the rest two network structure suffer from overfitting but it seems also applies for the two as well.  But VGG-16 seem to be a better network from the validation accuracy standing point.
+
+
+|      | Training Loss        | Validation Loss |         Training Accuracy         |  Validation Accuracy       |
+| ------------- |:-------------:| --------:|--------:|--------------:|
+| VGG-16-Like     |0.1376  | 0.1510 |   1    |   0.9966                  |
+| GoogLeNet-Like      | 0.1256      |   0.1457 |   1  | 0.9955      |
+| LeNet5-Like | 0.2903      |     0.5597 |  0.9992     |    0.9599   |
+
+We also evaluate test set loss and accuracy for the three models.  VGG-16-like is apparently the best. Comparatively, the GoogLeNet-like network made roughly 18 more mistakes.
+
+|      | Loss        | Accuracy  |
+| ------------- |:-------------:| -----:|
+| VGG-16-Like     |0.1915  | 0.9908 |
+| GoogLeNet-Like      | 0.1852      |   0.9894 |
+| LeNet5-Like | 0.5995      |    0.9468 |
