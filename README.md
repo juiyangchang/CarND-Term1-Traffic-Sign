@@ -20,9 +20,11 @@ The goals / steps of this project are the following:
 [image4]: ./figures/fig4_rgb_noise.png "Distribution of RGB Noise"
 [image5]: ./figures/fig5_data_aug.png "Examples of Transformed Images"
 [image6]: ./figures/fig6_acc_loss_plot.png "Plot of Loss and Accuracy during Training"
-[image7]: ./examples/placeholder.png "Traffic Sign 4"
-[image8]: ./examples/placeholder.png "Traffic Sign 5"
+[image7]: ./figures/fig7_test_images.png "Images from the Web"
+[image8]: ./figures/fig8_vgg_precision_recall.png "Precision and Recall Bar Chart of VGG-16-Like"
 
+[image10]: ./figures/fig10_vgg16_feature_map.png "VGG-16-Like's Feature Maps"
+[image11]: ./figures/fig11_googlenet_feature_map.png "GoogLeNet-Like's Feature Maps"
 ---
 ### Writeup / README
 
@@ -151,7 +153,7 @@ I didn't train a deeper network as I did the training on my laptop.
 
 The convolution layer includes convolution, batch normalization and relu activation.  Batch normalization
 is known to make the joint distribution of preactivation
-of different neurons less eclipical, thus helping the progress of gradient descent.  If not specified, I always use `'SAME'` padding in convolutional and pooling layers.
+of different neurons less elliptical, thus helping the progress of gradient descent.  If not specified, I always use `'SAME'` padding in convolutional and pooling layers.
 
 Batch normalization is also applied to the fully connected layer. A typcical fully connected layer includes
 matrix multiplication, batch normalization and neuronal activation. I would specify the type of activation function used in the table entry for the fully connected layer. Here the only fully connected layer has linear activation, its activation is further fed into softmax function for making predicitions.
@@ -180,7 +182,7 @@ of the inception module is # 1x1 + # 3x3 + # 5x5 + # pool proj
 
 ***VGG-16-Like***
 
-Another network structure I tried is the VGG-16-like network.  As can be seen from the table below, it's strucutre kind of resembles that of [VGG team's 16 layer network in 2014](https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md). But it only contains 13 layers.
+Another network structure I tried is the VGG-16-like network.  As can be seen from the table below, it's strucutre kind of resembles that of [VGG team's 16 layer network in 2014](https://gist.github.com/ksimonyan/211839e770f7b538e2d8#file-readme-md). But it only contains 10 weighted layers.
 
 
 |  Layer  |  patch size/stride | Output |
@@ -218,7 +220,7 @@ also uses batch normalization and dropout.
 | max pooling| 2x2/2 | 16x16x6|
 | convolution| 5x5/1 | 16x16x16|
 | max pooling| 2x2/2 | 8x8x16|
-| flatten |     | 256|
+| flatten |     | 1024|
 | fully connected relu | | 120|
 |dropout (50%) |  |120|
 | fully connected relu | | 84|
@@ -227,13 +229,18 @@ also uses batch normalization and dropout.
 | softmax  |   |43   |
 
 
-**Training**
+#### 3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
 I trained the VGG-16-like and LeNet5-like networks for 50 epochs of non-augmented data. Each epoch is a full run over all data points in the training set. I always use batch size of 64. I tried briefly with batch sizes of 32 but the loss fluctuates a lot.  In reflection, 32 can be too small for the batch size as we won't see all classes in a batch. I never tried larger batch sizes.
 
 For the GoogLeNet-Like structure, I trained over 40 epochs of augmented data.  I augmented the training data
 by a factor of three, meaning that in an epoch, for each training image, the original image and two transformed images of the image are used in training.
 So in each epoch, we training over 104,397 images.
+
+I used ADAM Optimizer for all three networks with learning rate of 0.003.  ADAM optimizer is known to 
+be more roboust as it will automatically tune the learning rate with momentum.
+
+#### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 Below we plot the training and validation set performance during training.  The plots of the GoogLeNet-like netowk is stretched in x axis as
 it effectively sees more data in an epoch.  It is quite apparently the LeNet5-like is suffering overfitting. The rest two is kind of similar performance-wise.
@@ -257,3 +264,110 @@ We also evaluate test set loss and accuracy for the three models.  VGG-16-like i
 | VGG-16-Like     |0.1915  | 0.9908 |
 | GoogLeNet-Like      | 0.1852      |   0.9894 |
 | LeNet5-Like | 0.5995      |    0.9468 |
+
+My final model results were:
+* training set accuracy of  1
+* validation set accuracy of 0.9966
+* test set accuracy of 0.9908
+
+If an iterative approach was chosen:
+* What was the first architecture that was tried and why was it chosen?
+* What were some problems with the initial architecture?
+* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
+* Which parameters were tuned? How were they adjusted and why?
+* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+
+If a well known architecture was chosen:
+* What architecture was chosen?
+* Why did you believe it would be relevant to the traffic sign application?
+* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
+ 
+ My approach for choosing network structure 
+
+### Test a Model on New Images
+
+#### 1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
+
+Here are five German traffic signs that I found on the web:
+ ![][image7]
+
+ The first image might be difficult to classify because ...
+
+#### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
+
+Here are the results of the prediction:
+
+| Image			        |     Prediction (VGG-16-Like)        					| 
+|:---------------------:|:---------------------------------------------:| 
+| Vehicles over 3.5 metric tons prohibited      		| Yield   									| 
+| Bumpy road     			| Speed limit (20km/h)										|
+| Priority road					| Priority road											|
+| Children crossing	      		| Children crossing					 				|
+| Beware of ice/snow			| Beware of ice/snow      							|
+The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
+
+|      |  Accuracy  |
+|:-----|:-----------|
+| VGG-16-Like | 0.6 |
+| GoogLeNet-Like | 0.8|
+
+![][image8]
+
+#### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
+
+Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.179|13 (Yield)|
+|0.083|5 (Speed limit (80km/h))|
+|0.052|38 (Keep right)|
+|0.048|2 (Speed limit (50km/h))|
+|0.042|9 (No passing)|
+
+Test Case 2, Actual Label: 22 (Bumpy road)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.753|0 (Speed limit (20km/h))|
+|0.015|12 (Priority road)|
+|0.014|1 (Speed limit (30km/h))|
+|0.013|38 (Keep right)|
+|0.013|13 (Yield)|
+
+Test Case 3, Actual Label: 12 (Priority road)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.771|12 (Priority road)|
+|0.016|2 (Speed limit (50km/h))|
+|0.015|1 (Speed limit (30km/h))|
+|0.014|38 (Keep right)|
+|0.014|13 (Yield)|
+
+Test Case 4, Actual Label: 28 (Children crossing)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.978|28 (Children crossing)|
+|0.001|2 (Speed limit (50km/h))|
+|0.001|1 (Speed limit (30km/h))|
+|0.001|38 (Keep right)|
+|0.001|12 (Priority road)|
+
+Test Case 5, Actual Label: 30 (Beware of ice/snow)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.249|30 (Beware of ice/snow)|
+|0.078|7 (Speed limit (100km/h))|
+|0.048|11 (Right-of-way at the next intersection)|
+|0.041|1 (Speed limit (30km/h))|
+|0.040|2 (Speed limit (50km/h))|
+
+### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
+#### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
+
+![][image10]
+
+![][image11]
