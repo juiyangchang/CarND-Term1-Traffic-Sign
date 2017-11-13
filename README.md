@@ -315,11 +315,13 @@ The model was able to correctly guess 4 of the 5 traffic signs, which gives an a
 
 ![][image8]
 
+
 ![][image9]
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
-*** VGG-16-Like ***
+
+***VGG-16-Like***
 
 Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
 
@@ -370,6 +372,8 @@ Test Case 5, Actual Label: 30 (Beware of ice/snow)
 |0.048|11 (Right-of-way at the next intersection)|
 |0.041|1 (Speed limit (30km/h))|
 |0.040|2 (Speed limit (50km/h))|
+
+***GoogLeNet-Like***
 
 Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
 
