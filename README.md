@@ -22,6 +22,7 @@ The goals / steps of this project are the following:
 [image6]: ./figures/fig6_acc_loss_plot.png "Plot of Loss and Accuracy during Training"
 [image7]: ./figures/fig7_test_images.png "Images from the Web"
 [image8]: ./figures/fig8_vgg_precision_recall.png "Precision and Recall Bar Chart of VGG-16-Like"
+[image9]: ./figures/fig9_googlenet_precision_recall.png "Precision and Recall Bar Chart of GoogLeNet-16-Like"
 [image10]: ./figures/fig10_vgg16_feature_map.png "VGG-16-Like's Feature Maps"
 [image11]: ./figures/fig11_googlenet_feature_map.png "GoogLeNet-Like's Feature Maps"
 
@@ -31,7 +32,7 @@ The goals / steps of this project are the following:
 #### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one. You can submit your writeup as markdown or pdf. You can use this template as a guide for writing the report. The submission includes the project code.
 
 Here is a link to my [project Ipython notebook](https://github.com/juiyangchang/CarND-Term1-Traffic-Sign-Classifer/blob/master/Traffic_Sign_Classifier_v1.ipynb).
-You can also check [here]() to see the exported .html file of my notebook.
+You can also check [here](https://github.com/juiyangchang/CarND-Term1-Traffic-Sign-Classifer/blob/master/Traffic_Sign_Classifier_v1.html) to see the exported .html file of my notebook.
 
 **Data Set Summary & Exploration**
 
@@ -297,13 +298,14 @@ Here are five German traffic signs that I found on the web:
 
 Here are the results of the prediction:
 
-| Image			        |     Prediction (VGG-16-Like)        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Vehicles over 3.5 metric tons prohibited      		| Yield   									| 
-| Bumpy road     			| Speed limit (20km/h)										|
-| Priority road					| Priority road											|
-| Children crossing	      		| Children crossing					 				|
-| Beware of ice/snow			| Beware of ice/snow      							|
+| Image			        |     Prediction (VGG-16-Like)        					|  Prediction (GoogLeNet-Like) |
+|:---------------------:|:---------------------------------------------:|:---:|
+| Vehicles over 3.5 metric tons prohibited      		| Yield   									| Vehicles over 3.5 metric tons prohibited      		| Yield   							|
+| Bumpy road     			| Speed limit (20km/h)										| Bumpy road     			|
+| Priority road					| Priority road											| Priority road											|
+| Children crossing	      		| Children crossing					 				| Children crossing					 				|
+| Beware of ice/snow			| Beware of ice/snow  | Speed limit (100km/h) |
+
 The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
 
 |      |  Accuracy  |
@@ -313,7 +315,11 @@ The model was able to correctly guess 4 of the 5 traffic signs, which gives an a
 
 ![][image8]
 
+![][image9]
+
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
+
+*** VGG-16-Like ***
 
 Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
 
@@ -364,6 +370,56 @@ Test Case 5, Actual Label: 30 (Beware of ice/snow)
 |0.048|11 (Right-of-way at the next intersection)|
 |0.041|1 (Speed limit (30km/h))|
 |0.040|2 (Speed limit (50km/h))|
+
+Test Case 1, Actual Label: 16 (Vehicles over 3.5 metric tons prohibited)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.910|16 (Vehicles over 3.5 metric tons prohibited)|
+|0.006|2 (Speed limit (50km/h))|
+|0.006|38 (Keep right)|
+|0.006|13 (Yield)|
+|0.005|1 (Speed limit (30km/h))|
+
+Test Case 2, Actual Label: 22 (Bumpy road)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.999|22 (Bumpy road)|
+|0.000|2 (Speed limit (50km/h))|
+|0.000|13 (Yield)|
+|0.000|10 (No passing for vehicles over 3.5 metric tons)|
+|0.000|4 (Speed limit (70km/h))|
+
+Test Case 3, Actual Label: 12 (Priority road)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.739|12 (Priority road)|
+|0.018|2 (Speed limit (50km/h))|
+|0.017|13 (Yield)|
+|0.017|1 (Speed limit (30km/h))|
+|0.016|10 (No passing for vehicles over 3.5 metric tons)|
+
+Test Case 4, Actual Label: 28 (Children crossing)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.960|28 (Children crossing)|
+|0.003|2 (Speed limit (50km/h))|
+|0.003|1 (Speed limit (30km/h))|
+|0.003|13 (Yield)|
+|0.002|10 (No passing for vehicles over 3.5 metric tons)|
+
+Test Case 5, Actual Label: 30 (Beware of ice/snow)
+
+|Probability|Prediction|
+|:----:|:----:|
+|0.097|7 (Speed limit (100km/h))|
+|0.082|5 (Speed limit (80km/h))|
+|0.073|2 (Speed limit (50km/h))|
+|0.060|12 (Priority road)|
+|0.051|1 (Speed limit (30km/h))|
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 #### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
