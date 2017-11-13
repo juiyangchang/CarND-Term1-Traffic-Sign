@@ -372,7 +372,7 @@ is label 0.  Three out of five of the images are circular shape, maybe it was du
 |0.013|38 (Keep right)|
 |0.013|13 (Yield)|
 
-Test Case 3, Actual Label: 12 (Priority road): this one iss less interesting as the network iss correct.
+Test Case 3, Actual Label: 12 (Priority road): this one is less interesting as the network is correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -382,7 +382,7 @@ Test Case 3, Actual Label: 12 (Priority road): this one iss less interesting as 
 |0.014|38 (Keep right)|
 |0.014|13 (Yield)|
 
-Test Case 4, Actual Label: 28 (Children crossing): this one iss less interesting as the network iss correct.
+Test Case 4, Actual Label: 28 (Children crossing): this one is less interesting as the network is correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -425,7 +425,7 @@ Test Case 2, Actual Label: 22 (Bumpy road): Unlike the VGG-16-like network, the 
 |0.000|10 (No passing for vehicles over 3.5 metric tons)|
 |0.000|4 (Speed limit (70km/h))|
 
-Test Case 3, Actual Label: 12 (Priority road): this one iss less interesting as the network iss correct.
+Test Case 3, Actual Label: 12 (Priority road): this one is less interesting as the network is correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -435,7 +435,7 @@ Test Case 3, Actual Label: 12 (Priority road): this one iss less interesting as 
 |0.017|1 (Speed limit (30km/h))|
 |0.016|10 (No passing for vehicles over 3.5 metric tons)|
 
-Test Case 4, Actual Label: 28 (Children crossing): this one iss less interesting as the network iss correct.
+Test Case 4, Actual Label: 28 (Children crossing): this one is less interesting as the network is correct.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -445,7 +445,7 @@ Test Case 4, Actual Label: 28 (Children crossing): this one iss less interesting
 |0.003|13 (Yield)|
 |0.002|10 (No passing for vehicles over 3.5 metric tons)|
 
-Test Case 5, Actual Label: 30 (Beware of ice/snow): The network kind of have no idea what this is.  I don't know if it was because of the jittering noise in the image being unfamilar to the network.
+Test Case 5, Actual Label: 30 (Beware of ice/snow): The network kind of has no idea what this is.  I don't know if it was because of the jittering noise in the image being unfamiliar to the network.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -462,7 +462,8 @@ Below I show the feature map of the first pooling layers in the VGG-16-like and
 GoogLeNet-like networks when applied with the first test image from the web.
 Both networks conclude that circular shapes is probably important for classifying this image.  One thing worth noticing is that, the GoogLeNet feature maps, despite being more blurred, is less likely to react to a local area in the background. On the other hand, there are multiple feature maps
 in the VGG-16-like network being reactive to the top left corner.  I think this
-provides a proof of the image augmentation being helpful in fitting to local noises.
+provides a proof of the image augmentation being helpful in fitting to local noises. The networks also seem to be trying to identify the truck in the middle
+of the sign as we can see multiple feature maps showing a white block in the middle of surrounding circle.
 
 ***VGG-16-like***
 ![][image10]
