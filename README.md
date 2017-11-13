@@ -282,22 +282,24 @@ My final model results were:
  the project goal. 
  
  Batch normalization is adopted as it is known to accelerate the training and increase accuracy.  Batch normalization is used in preactivation of convolution and fully connected layers.  Dropout is applied to as a form of regularization. Dropout is only added after the activation of a fully connected layer (except for the classification layer).  It seems to be a common practice to not use dropout after convolution layer.  For one thing,
- the convolution layer is already sparse as each neuron only connect to a small
- patch from the previous layer.  Each neuron here is a particular pixel in a layer of feature.  I did try using dropout after convolution layer briefly but
+ the convolution layer is already sparse as each neuron only connects to a small
+ patch from the previous layer.  Each neuron here is a particular pixel in a layer of feature map.  I did try using dropout after convolution layer briefly but
  it seems that the training accuracy would fluctuate a lot and the improvement is insignificant.  Dropout rate is set to 0.5 and I did not consider tuning it.
 
 My other design choice was to use `SAME` padding instead of `VALID` padding in LeNet5-like network. I don't know if it has encouraged a better performance, but it seems that `SAME` padding is used in modern networks more. Moreover, I found it easier for keep tracking of the output sizes.
 
+The LeNet5-like is however showing signs of overfitting as we can see there is  a gap between training and validation set accuracies.
+
  I moved on to adding more convolution layers before each pooling layer, as it seems to be more common to use multiple convolution layers in modern designs, according to the [CS231n course notes](http://cs231n.stanford.edu/).  During the trials, I also noticed that adding more layers to the initial convolution layers is helpful (and also increase the depth of later layers as later layers typically increase depths from the former layers).  I also noticed that the changing kernel size from 5 to 3 seems won't degrade the performance.  Furthermore, kernel size of 5 is considerably slower than 3 in deeper structures.  I ended up just using a part of [the VGG team's 16-layer network](https://arxiv.org/pdf/1409.1556).
  Interestingly, the VGG-16-like network suppresses the overfitting issue from
  the LeNet5-like structure greatly.
- I also tried replacing part of the convolution layers in the VGG-16-like networks to inception modules, which I called the GoogLeNet-like.  The dimension of the layers take ideas from the [GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf).  The main difference from them is that I used batch normalization in each of the weighted layers (convolution and fully connected).
+ I also tried replacing part of the convolution layers in the VGG-16-like networks to inception modules, which I called the GoogLeNet-like.  The dimension of the layers was set by drawing ideas from the [GoogLeNet paper](https://www.cs.unc.edu/~wliu/papers/GoogLeNet.pdf).  The main difference from them is that I used batch normalization in each of the weighted layers (convolution and fully connected).
 
  As a parting word, convolution neural network should be suitable to traffic sign problem as the signs can be appearing in different locations in the images, and taken with differing viewing points and distances. Convolution
  layers are shift invariant so it should be able to learn useful common features
  occurring at differing locations in two or more images.  The reasoning behind using VGG 16-layer or the inception modules is more of a random decision.  But 
  I think it always worth trying competition winning network structures. My final networks -- the VGG-16-like and the GoogLeNet-like networks are both quite good performance-wise.  It would be interesting to see if the error rate
- over the validation sets can be further decreased.
+ over the validation sets can be further decreased -- potentially with other dropout rate (or a different regularization technique) and a different learning rate, as we are trying to decrease the variance in the model here.
 
 ### Test a Model on New Images
 
@@ -315,11 +317,11 @@ Here are the results of the prediction:
 
 | Image			        |     Prediction (VGG-16-Like)        					|  Prediction (GoogLeNet-Like) |
 |:---------------------:|:---------------------------------------------:|:---:|
-| Vehicles over 3.5 metric tons prohibited      		| Yield   									| Vehicles over 3.5 metric tons prohibited      		| Yield   							|
-| Bumpy road     			| Speed limit (20km/h)										| Bumpy road     			|
+| Vehicles over 3.5 metric tons prohibited      		| ***Yield***  									| Vehicles over 3.5 metric tons prohibited      		| Yield   							|
+| Bumpy road     			| ***Speed limit (20km/h)***										| Bumpy road     			|
 | Priority road					| Priority road											| Priority road											|
 | Children crossing	      		| Children crossing					 				| Children crossing					 				|
-| Beware of ice/snow			| Beware of ice/snow  | Speed limit (100km/h) |
+| Beware of ice/snow			| Beware of ice/snow  | ***Speed limit (100km/h)*** |
 
 Here we show the accuracy rates for the two networks over the test images from the web:
 
@@ -331,7 +333,7 @@ Here we show the accuracy rates for the two networks over the test images from t
 
 The *VGG-16-like* model was able to correctly guess 3 of the 5 traffic signs, which gives an accuracy of 60%.  This is comparatively worse than the test set performance.  
 
-It is kind of difficult to reason why it would decide the first image as yield. For one thing, yield is a triangular sign while the sign in the image is circular. Maybe it was because the bottom rectangular shape in the image.  The precision and recall rates of classes 16 (Vehicles over 3.5 metric tons prohibited ) and 13 (Yield) aren't particularly low or high as in the bar chart below.  The VGG-16-like model also failed to classify the second image correctly, this time mistaken a sign of triangular shape with a sign of circular shape (Speed Limit).  Again the precision and recall charts aren't useful in reasoning this mistake.  For both cases I would think it is because
+It is kind of difficult to reason why it would decide the first image as yield. For one thing, yield is a triangular sign while the sign in the image is circular. Maybe it was because the bottom rectangular shape in the image.  The precision and recall rates of classes 16 (Vehicles over 3.5 metric tons prohibited ) and 13 (Yield) aren't particularly low or high as shown in the bar chart below.  The VGG-16-like model also failed to classify the second image correctly, this time mistaken a sign of triangular shape with a sign of circular shape (Speed Limit).  Again the precision and recall charts aren't useful in reasoning this mistake.  For both cases I would think it is because
 these two images doesn't resemble those the network saw during training (differing viewing angle and size).
 
 
@@ -350,8 +352,7 @@ Below I describe the prediction probabilities of the five new images for both ne
 
 In test case 1,  the actual label is class 16 (Vehicles over 3.5 metric tons prohibited).  The top five probabilities can be seen below.  The actual class 
 is not even in top five but the network seems to be not really certain about
-the label for this image anyways as the prediction probability are all kind of small.  Note that the second to fifth labels are all of circular shape, same 
-as the actual label.
+the label for this image anyways, as the prediction probability are all kind of small.  Note that the second to the fifth labels are all of circular shape, which are same as the actual label.
 
 |Probability|Prediction|
 |:----:|:----:|
@@ -393,7 +394,7 @@ Test Case 4, Actual Label: 28 (Children crossing): this one is less interesting 
 |0.001|12 (Priority road)|
 
 Test Case 5, Actual Label: 30 (Beware of ice/snow): Despite making the right
-judgment, the network is comparatively less certain about this image. Maybe it is due to the fact that of class 30 having a lower recall rate for VGG-16-like network.
+judgment, the network is comparatively less certain about this image. Maybe it is due to the fact that class 30 having a lower recall rate for the VGG-16-like network.
 
 |Probability|Prediction|
 |:----:|:----:|
